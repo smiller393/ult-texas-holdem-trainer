@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b1210">
+  <meta name="description" content="Practice Ultimate Texas Hold'em with the Wizard of Odds strategy. Tracks your decisions and explains every mistake, including river dealer outs.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="UTH Trainer">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <title>Ultimate Texas Hold'em Trainer</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">♠</span><span>UTH <em>Trainer</em></span></div>
+    <div class="score-pill" id="scorePill" aria-live="polite" title="This session"></div>
+  </header>
+
+  <nav class="tabs" aria-label="Sections">
+    <a href="#play" data-view="play" class="tab"><span class="tab-ico" aria-hidden="true">🂡</span><span>Play</span></a>
+    <a href="#drill" data-view="drill" class="tab"><span class="tab-ico" aria-hidden="true">21</span><span>Outs Drill</span></a>
+    <a href="#strategy" data-view="strategy" class="tab"><span class="tab-ico" aria-hidden="true">✦</span><span>Strategy</span></a>
+    <a href="#stats" data-view="stats" class="tab"><span class="tab-ico" aria-hidden="true">▤</span><span>Stats</span></a>
+  </nav>
+
+  <main>
+    <!-- PLAY -->
+    <section class="view view-play" id="view-play" data-view="play" hidden>
+      <div class="felt table" id="playTable">
+        <div class="seat">
+          <div class="seat-label">Dealer <span class="hand-desc" id="dealerDesc"></span></div>
+          <div class="cards" id="dealerCards"></div>
+        </div>
+        <div class="seat board-seat">
+          <div class="cards" id="boardCards"></div>
+        </div>
+        <div class="seat">
+          <div class="cards" id="playerCards"></div>
+          <div class="seat-label">You <span class="hand-desc" id="playerDesc"></span></div>
+        </div>
+        <div class="bets" id="bets"></div>
+      </div>
+
+      <div class="side">
+        <div class="status" id="playStatus" aria-live="polite"></div>
+        <div class="actions" id="playActions"></div>
+        <div class="feedback" id="playFeedback" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- OUTS DRILL -->
+    <section class="view view-drill" id="view-drill" data-view="drill" hidden>
+      <div class="drill-top">
+        <div>
+          <h2>River outs drill</h2>
+          <p class="muted small">Count the dealer cards that beat you. Fewer than 21: raise 1x. 21 or more: fold.</p>
+        </div>
+        <label class="select-wrap">
+          <span class="sr-only">Drill type</span>
+          <select id="drillMode">
+            <option value="mixed">Mixed spots</option>
+            <option value="close">Close calls (16–26)</option>
+            <option value="tricky">Tricky boards</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="felt table compact" id="drillTable">
+        <div class="seat board-seat">
+          <div class="seat-label">Board</div>
+          <div class="cards" id="drillBoard"></div>
+        </div>
+        <div class="seat">
+          <div class="cards" id="drillHole"></div>
+          <div class="seat-label">You <span class="hand-desc" id="drillDesc"></span></div>
+        </div>
+      </div>
+
+      <div class="side">
+        <div class="counter" id="drillCounter">
+          <span class="counter-label">Your outs count <span class="muted">(optional)</span></span>
+          <div class="stepper">
+            <button type="button" class="btn icon" id="countMinus" aria-label="Decrease count">−</button>
+            <input id="countInput" type="number" inputmode="numeric" min="0" max="45" placeholder="?" aria-label="Your dealer outs count">
+            <button type="button" class="btn icon" id="countPlus" aria-label="Increase count">+</button>
+          </div>
+        </div>
+        <div class="actions" id="drillActions"></div>
+        <div class="feedback" id="drillFeedback" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- STRATEGY -->
+    <section class="view view-strategy" id="view-strategy" data-view="strategy" hidden>
+      <div class="doc">
+        <p class="muted">The Wizard of Odds simple strategy: easy to memorize and very close to perfect play. You get three chances to bet, and the earlier you bet, the more you can bet.</p>
+
+        <article class="card-panel">
+          <h2><span class="step">1</span> Preflop: raise 4x or check</h2>
+          <ul class="rules">
+            <li><strong>Any pair 3-3 or better</strong> (check 2-2)</li>
+            <li><strong>Any Ace</strong></li>
+            <li><strong>King</strong>: any suited card, or 5+ offsuit (K2s+, K5o+)</li>
+            <li><strong>Queen</strong>: 6+ suited, 8+ offsuit (Q6s+, Q8o+)</li>
+            <li><strong>Jack</strong>: 8+ suited, 10 offsuit (J8s+, JTo)</li>
+            <li>Everything else: <strong>check</strong></li>
+          </ul>
+          <div class="pf-legend"><span class="sw raise"></span>Raise 4x <span class="sw check"></span>Check <span class="muted small">Suited top-right, offsuit bottom-left</span></div>
+          <div class="pf-grid" id="preflopGrid" role="table" aria-label="Preflop raising chart"></div>
+        </article>
+
+        <article class="card-panel">
+          <h2><span class="step">2</span> Flop: raise 2x or check</h2>
+          <ul class="rules">
+            <li><strong>Two pair or better</strong> that uses your hole cards</li>
+            <li><strong>Hidden pair</strong>, except pocket 2s</li>
+            <li><strong>Four to a flush</strong> with a hidden 10 or better in that suit</li>
+            <li>Everything else: <strong>check</strong></li>
+          </ul>
+          <p class="note"><strong>Hidden pair</strong> means a pair that uses at least one of your hole cards, so the dealer doesn't share it. A pair on the board alone doesn't count. Open-ended straight draws and overcards don't count either.</p>
+        </article>
+
+        <article class="card-panel">
+          <h2><span class="step">3</span> River: raise 1x or fold</h2>
+          <ul class="rules">
+            <li><strong>Hidden pair or better</strong>: raise</li>
+            <li><strong>Fewer than 21 dealer outs</strong>: raise</li>
+            <li>21 or more outs: <strong>fold</strong></li>
+          </ul>
+        </article>
+
+        <article class="card-panel highlight" id="outsGuide">
+          <h2><span class="step">21</span> Counting dealer outs</h2>
+          <p>An <strong>out</strong> is one of the 45 cards you can't see that, as a dealer hole card with the board, <strong>beats</strong> you. Cards that would only tie (push) are <strong>not</strong> outs. You only count when you have no hidden pair.</p>
+          <ol class="method">
+            <li><strong>Pair outs.</strong> 3 for each board rank the dealer can pair. On an unpaired board that's always <strong>15</strong>.</li>
+            <li><strong>Kicker outs.</strong> 4 for each rank <em>not</em> on the board that is higher than your best playing hole card (or the board's lowest card, if your hole cards don't play). It out-kicks you.</li>
+            <li><strong>Draw outs.</strong> Four suited cards on board? Add the rest of that suit (usually 9). One card from a straight? Add 4 for each rank that completes it. Don't double count.</li>
+            <li><strong>Ignore pushes.</strong> A card that just matches your kicker ties you. Leave it out.</li>
+          </ol>
+
+          <h3>Shortcuts</h3>
+          <div class="shortcuts">
+            <div class="shortcut">
+              <div class="sc-title">Unpaired board, no flush/straight threats</div>
+              <div class="sc-math">15 + 4 per rank that out-kicks you</div>
+              <div class="sc-rule">15 or 19 → <b class="good">raise</b> · 23 → <b class="bad">fold</b></div>
+              <div class="sc-tip">Raise only if <strong>at most one</strong> missing rank beats your kicker.</div>
+            </div>
+            <div class="shortcut">
+              <div class="sc-title">One pair on board</div>
+              <div class="sc-math">9 (two pair) + 2 (trips) + 4 per out-kicking rank</div>
+              <div class="sc-rule">11, 15, 19 → <b class="good">raise</b> · 23 → <b class="bad">fold</b></div>
+              <div class="sc-tip">Raise if <strong>at most two</strong> missing ranks beat your kicker.</div>
+            </div>
+            <div class="shortcut">
+              <div class="sc-title">Four to a flush on board (you don't have it)</div>
+              <div class="sc-math">~15 pair outs + ~8–9 flush cards</div>
+              <div class="sc-rule">Usually 21+ → <b class="bad">fold</b></div>
+              <div class="sc-tip">Only a hidden pair or better saves you here.</div>
+            </div>
+            <div class="shortcut">
+              <div class="sc-title">Board straight you can't beat</div>
+              <div class="sc-math">Only higher straights (and flushes, if possible) beat you</div>
+              <div class="sc-rule">Usually under 10 → <b class="good">raise</b></div>
+              <div class="sc-tip">Everything else pushes.</div>
+            </div>
+          </div>
+
+          <h3>Worked example (Wizard of Odds)</h3>
+          <p>Board <b>K 7 2 A 10</b>, you hold <b>9-3</b>. You're playing A-K-10-9-7.</p>
+          <ul class="rules">
+            <li>Pair outs: K, 7, 2, A, 10 × 3 each = <strong>15</strong></li>
+            <li>Kicker outs: Q and J out-kick your 9 = <strong>8</strong></li>
+            <li>The other three 9s only push: not outs</li>
+            <li>Total <strong>23</strong> → <b class="bad">fold</b></li>
+          </ul>
+          <p>Hold a J instead of the 9 and only the Queens out-kick you: 15 + 4 = <strong>19</strong> → <b class="good">raise</b>.</p>
+          <button class="btn primary" type="button" data-goto="drill">Practice counting outs →</button>
+        </article>
+
+        <article class="card-panel">
+          <h2>Payouts</h2>
+          <div class="paytables">
+            <div>
+              <h3>Blind (only if you win)</h3>
+              <table class="pay">
+                <tr><td>Royal flush</td><td>500 to 1</td></tr>
+                <tr><td>Straight flush</td><td>50 to 1</td></tr>
+                <tr><td>Four of a kind</td><td>10 to 1</td></tr>
+                <tr><td>Full house</td><td>3 to 1</td></tr>
+                <tr><td>Flush</td><td>3 to 2</td></tr>
+                <tr><td>Straight</td><td>1 to 1</td></tr>
+                <tr><td>Anything else</td><td>Push</td></tr>
+              </table>
+            </div>
+            <div>
+              <h3>Ante and Play</h3>
+              <p class="small">Play pays 1 to 1 when you win. The Ante pays 1 to 1 only if the dealer qualifies with a pair or better; otherwise it pushes. If you fold, you lose the Ante and Blind.</p>
+            </div>
+          </div>
+          <p class="small muted">Source: <a href="https://wizardofodds.com/games/ultimate-texas-hold-em/" target="_blank" rel="noopener">Wizard of Odds: Ultimate Texas Hold 'Em</a></p>
+        </article>
+      </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="view view-stats" id="view-stats" data-view="stats" hidden>
+      <div class="doc" id="statsBody"></div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

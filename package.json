@@ -1,0 +1,15 @@
+{
+  "name": "ult-texas-holdem-trainer",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Ultimate Texas Hold'em strategy trainer (Wizard of Odds strategy)",
+  "scripts": {
+    "test": "node --test tests/unit/*.test.js",
+    "test:e2e": "playwright test",
+    "serve": "python3 -m http.server 8080"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0"
+  }
+}

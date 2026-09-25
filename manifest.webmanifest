@@ -1,0 +1,15 @@
+{
+  "name": "Ultimate Texas Hold'em Trainer",
+  "short_name": "UTH Trainer",
+  "description": "Practice Ultimate Texas Hold'em with the Wizard of Odds strategy.",
+  "start_url": "./#play",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b1210",
+  "theme_color": "#0b1210",
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
